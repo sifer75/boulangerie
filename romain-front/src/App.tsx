@@ -90,8 +90,6 @@ function App() {
   const [open, setOpen] = useState<boolean>(false);
 
   const handleShowProduct = (product: DaysState) => {
-    console.log("Product selected:", product); // Vérifiez que les données sont correctes
-
     setSelectedProduct(product);
     setOpen(true);
   };

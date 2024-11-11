@@ -27,7 +27,6 @@ export const getAllProducts = async () => {
 };
 
 export const updateProduct = async ({ days }: { days: DaysState }) => {
-  console.log(days, "days");
   const response = await fetch(`http://${BACKEND_HOST}:3333/product/update`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
