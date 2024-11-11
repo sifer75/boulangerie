@@ -25,6 +25,7 @@ function CreateProduct() {
     vendredi: 0,
     samedi: 0,
     dimanche: 0,
+    paton: 0,
   });
   const [isOpen, setIsOpen] = useState(false);
 
@@ -76,19 +77,17 @@ function CreateProduct() {
         <form onSubmit={handleSubmit}>
           <div className="grid gap-4 py-4">
             {Object.keys(days).map((day) => (
-              <div key={day}>
-                <div className="grid grid-cols-4 items-center gap-4">
-                  <Label htmlFor={day} className="text-right">
-                    {day}
-                  </Label>
-                  <Input
-                    id={day}
-                    value={days[day as keyof DaysState] as number}
-                    onChange={handleInputChange}
-                    className="col-span-3"
-                    placeholder={day}
-                  />
-                </div>
+              <div className="grid grid-cols-4 items-center gap-4" key={day}>
+                <Label htmlFor={day} className="text-right">
+                  {day}
+                </Label>
+                <Input
+                  id={day}
+                  value={days[day as keyof DaysState] as number}
+                  onChange={handleInputChange}
+                  className="col-span-3"
+                  placeholder={day}
+                />
               </div>
             ))}
           </div>

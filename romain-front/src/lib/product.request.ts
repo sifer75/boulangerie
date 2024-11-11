@@ -25,3 +25,35 @@ export const getAllProducts = async () => {
   }
   return response.json();
 };
+
+export const updateProduct = async ({
+  data,
+  id,
+}: {
+  data: DaysState;
+  id: number;
+}) => {
+  const response = await fetch(`http://${BACKEND_HOST}:3333/product/update`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ ...data, id }),
+    credentials: "include",
+  });
+  if (!response.ok) {
+    throw new Error("Erreur lors de la récupération des produits");
+  }
+  return response.json();
+};
+
+export const deleteProduct = async ({ id }: { id: number }) => {
+  const response = await fetch(`http://${BACKEND_HOST}:3333/product/delete`, {
+    method: "DELETE",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ id }),
+    credentials: "include",
+  });
+  if (!response.ok) {
+    throw new Error("Erreur lors de la suppression du produit");
+  }
+  return response.json();
+};
