@@ -10,4 +10,6 @@
 import router from '@adonisjs/core/services/router'
 const ProductControllers = () => import('#controllers/products_controller')
 
-router.get('/product/create', [ProductControllers, 'createProduct'])
+// CRUD product
+router.post('/product/create', [ProductControllers, 'createProduct'])
+router.get('/product/get', [ProductControllers, 'getAllProducts'])
