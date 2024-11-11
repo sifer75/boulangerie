@@ -14,4 +14,5 @@ export type ProductDetailProps = {
   product: DaysState;
   onClose: () => void;
   open: boolean;
+  onUpdate: (arg0: DaysState) => void;
 };

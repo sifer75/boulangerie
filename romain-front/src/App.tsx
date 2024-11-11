@@ -10,8 +10,14 @@ import { useQuery } from "@tanstack/react-query";
 import { getAllProducts } from "./lib/product.request";
 import { DaysState, ProductDetailProps } from "./lib/type";
 import DeleteProduct from "./components/DeleteProduct";
+import { weeks } from "./lib/array";
 
-function ProductDetail({ product, onClose, open }: ProductDetailProps) {
+function ProductDetail({
+  product,
+  onClose,
+  open,
+  onUpdate,
+}: ProductDetailProps) {
   const total =
     (product?.mardi ?? 0) +
     (product?.mercredi ?? 0) +
@@ -20,7 +26,8 @@ function ProductDetail({ product, onClose, open }: ProductDetailProps) {
     (product?.samedi ?? 0) +
     (product?.dimanche ?? 0);
 
-  const patonTotal = total / product.paton;
+  const patonTotal =
+    total === 0 || product.paton === 0 ? 0 : (total / product.paton).toFixed(1);
 
   return (
     <div
@@ -32,7 +39,7 @@ function ProductDetail({ product, onClose, open }: ProductDetailProps) {
         <Button onClick={onClose}>
           <ArrowLeft className="w-4 h-4" />
         </Button>
-        <UpdateProduct product={product} productId={product.id as number} />
+        <UpdateProduct product={product} onUpdate={onUpdate} />
       </div>
       <div className="w-full max-h-full h-fit p-5 gap-10 flex flex-col">
         <h1 className="w-full flex text-center">{product.title}</h1>
@@ -42,30 +49,12 @@ function ProductDetail({ product, onClose, open }: ProductDetailProps) {
             className="w-full h-fit flex flex-col gap-2 p-2"
             key={product.id}
           >
-            <div className="flex gap-2">
-              <span>mardi: </span>
-              <span>{product.mardi}</span>
-            </div>
-            <div className="flex gap-2">
-              <span>mercredi: </span>
-              <span>{product.mercredi}</span>
-            </div>
-            <div className="flex gap-2">
-              <span>jeudi:</span>
-              <span>{product.jeudi}</span>
-            </div>
-            <div className="flex gap-2">
-              <span>vendredi:</span>
-              <span>{product.vendredi}</span>
-            </div>
-            <div className="flex gap-2">
-              <span>samedi:</span>
-              <span>{product.samedi}</span>
-            </div>
-            <div className="flex gap-2">
-              <span>dimanche:</span>
-              <span>{product.dimanche}</span>
-            </div>
+            {weeks.map((day) => (
+              <div className="flex gap-2" key={day}>
+                <span>{day}:</span>
+                <span>{product[day.toLowerCase() as keyof DaysState]}</span>
+              </div>
+            ))}
           </div>
         </div>
         <div className="border-t w-full h-fit">
@@ -86,6 +75,7 @@ function ProductDetail({ product, onClose, open }: ProductDetailProps) {
           <DeleteProduct
             title={product.title}
             productId={product.id as number}
+            onClose={onClose}
           />
         </div>
       </div>
@@ -100,6 +90,8 @@ function App() {
   const [open, setOpen] = useState<boolean>(false);
 
   const handleShowProduct = (product: DaysState) => {
+    console.log("Product selected:", product); // Vérifiez que les données sont correctes
+
     setSelectedProduct(product);
     setOpen(true);
   };
@@ -110,22 +102,27 @@ function App() {
   };
 
   const {
-    data: products,
+    data: products = [],
     isLoading,
     isError,
-  } = useQuery({
+  } = useQuery<DaysState[]>({
     queryKey: ["product"],
     queryFn: getAllProducts,
   });
 
+  const handleUpdateProduct = (updateProduct: DaysState) => {
+    setSelectedProduct(updateProduct);
+  };
+
   if (isError || isLoading) return <div>chargement...</div>;
 
-  const filteredProduct = products.filter(
-    (product: DaysState) =>
-      product.title &&
-      product.title.toLowerCase().includes(searchProduct.toLowerCase())
-  );
-
+  const filteredProduct = Array.isArray(products)
+    ? products.filter(
+        (product: DaysState) =>
+          product.title &&
+          product.title.toLowerCase().includes(searchProduct.toLowerCase())
+      )
+    : [];
   return (
     <div className="w-screen h-screen p-5 flex flex-col relative gap-10 bg-blue-500">
       <div className="flex items-center relative w-2/3">
@@ -160,6 +157,7 @@ function App() {
           product={selectedProduct}
           onClose={handleCloseSlide}
           open={open}
+          onUpdate={handleUpdateProduct}
         />
       )}
     </div>

@@ -17,21 +17,22 @@ import { useState } from "react";
 
 function UpdateProduct({
   product,
-  productId,
+  onUpdate,
 }: {
   product: DaysState;
-  productId: number;
+  onUpdate: (arg0: DaysState) => void;
 }) {
   const queryClient = useQueryClient();
   const [days, setDays] = useState<DaysState>({
-    title: product.title,
-    mardi: product.mardi,
-    mercredi: product.mercredi,
-    jeudi: product.jeudi,
-    vendredi: product.vendredi,
-    samedi: product.samedi,
-    dimanche: product.dimanche,
-    paton: product.paton,
+    id: product.id,
+    title: product.title ?? 0,
+    mardi: product.mardi ?? 0,
+    mercredi: product.mercredi ?? 0,
+    jeudi: product.jeudi ?? 0,
+    vendredi: product.vendredi ?? 0,
+    samedi: product.samedi ?? 0,
+    dimanche: product.dimanche ?? 0,
+    paton: product.paton ?? 0,
   });
   const [isOpen, setIsOpen] = useState(false);
 
@@ -54,19 +55,21 @@ function UpdateProduct({
   };
 
   const mutation = useMutation({
-    mutationFn: updateProduct,
+    mutationFn: () => updateProduct({ days }),
     onError: (error) => {
       console.log(error);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["product"] });
+      queryClient.refetchQueries({ queryKey: ["product"] });
       setIsOpen(false);
+      onUpdate(days);
     },
   });
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    mutation.mutate({ data: days, id: productId });
+    mutation.mutate();
   };
 
   return (
@@ -83,24 +86,27 @@ function UpdateProduct({
         </DialogHeader>
         <form onSubmit={handleSubmit}>
           <div className="grid gap-4 py-4">
-            {Object.keys(days).map((day) => (
-              <div className="grid grid-cols-4 items-center gap-4" key={day}>
-                <Label htmlFor={day} className="text-right">
-                  {day}
-                </Label>
-                <Input
-                  id={day}
-                  value={days[day as keyof DaysState] ?? ""}
-                  onChange={handleInputChange}
-                  className="col-span-3"
-                  placeholder={
-                    day === "title"
-                      ? product.title
-                      : day.charAt(0).toUpperCase() + day.slice(1)
-                  }
-                />
-              </div>
-            ))}
+            {Object.keys(days).map((day) => {
+              if (day === "id") return null;
+              return (
+                <div className="grid grid-cols-4 items-center gap-4" key={day}>
+                  <Label htmlFor={day} className="text-right">
+                    {day}
+                  </Label>
+                  <Input
+                    id={day}
+                    value={days[day as keyof DaysState] ?? ""}
+                    onChange={handleInputChange}
+                    className="col-span-3"
+                    placeholder={
+                      day === "title"
+                        ? product.title
+                        : day.charAt(0).toUpperCase() + day.slice(1)
+                    }
+                  />
+                </div>
+              );
+            })}
           </div>
           <DialogFooter>
             <Button type="submit">Modifier le produit</Button>

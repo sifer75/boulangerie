@@ -26,17 +26,12 @@ export const getAllProducts = async () => {
   return response.json();
 };
 
-export const updateProduct = async ({
-  data,
-  id,
-}: {
-  data: DaysState;
-  id: number;
-}) => {
+export const updateProduct = async ({ days }: { days: DaysState }) => {
+  console.log(days, "days");
   const response = await fetch(`http://${BACKEND_HOST}:3333/product/update`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ ...data, id }),
+    body: JSON.stringify(days),
     credentials: "include",
   });
   if (!response.ok) {

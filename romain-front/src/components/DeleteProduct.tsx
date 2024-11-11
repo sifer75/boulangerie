@@ -14,21 +14,24 @@ import { deleteProduct } from "@/lib/product.request";
 function DeleteProduct({
   title,
   productId,
+  onClose,
 }: {
   title: string;
   productId: number;
+  onClose: () => void;
 }) {
   const queryClient = useQueryClient();
   const [isOpen, setIsOpen] = useState(false);
 
   const mutation = useMutation({
-    mutationFn: deleteProduct,
+    mutationFn: () => deleteProduct({ id: productId }),
     onError: (error) => {
       console.log(error);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["product"] });
       setIsOpen(false);
+      onClose();
     },
   });
 
@@ -47,10 +50,7 @@ function DeleteProduct({
           </DialogDescription>
         </DialogHeader>
         <DialogFooter>
-          <Button
-            onClick={() => mutation.mutate({ id: productId })}
-            variant="destructive"
-          >
+          <Button onClick={() => mutation.mutate()} variant="destructive">
             Supprimer le produit
           </Button>
         </DialogFooter>
