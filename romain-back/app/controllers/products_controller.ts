@@ -42,28 +42,9 @@ export default class ProductsController {
 
   async updateProduct({ response, request }: HttpContext) {
     try {
-      const {
-        title,
-        id,
-        mardi,
-        mercredi,
-        jeudi,
-        vendredi,
-        samedi,
-        dimanche,
-        paton,
-      }: Partial<Product> = request.only([
-        'title',
-        'id',
-        'mardi',
-        'mercredi',
-        'jeudi',
-        'vendredi',
-        'samedi',
-        'dimanche',
-        'paton',
-      ])
-
+      const { id, title, mardi, mercredi, jeudi, vendredi, samedi, dimanche, paton } = request.only(
+        ['id', 'title', 'mardi', 'mercredi', 'jeudi', 'vendredi', 'samedi', 'dimanche', 'paton']
+      )
       if (!id) {
         return response.status(400).json({ error: 'ID du produit manquant' })
       }
@@ -91,10 +72,8 @@ export default class ProductsController {
   async DeleteProduct({ response, request }: HttpContext) {
     try {
       const { id } = request.only(['id'])
-      console.log(id, 'ddd')
       if (!id) return response.status(404).json({ e: 'id non trouvé' })
-      const productId = Number(id)
-      const product = await Product.find(productId)
+      const product = await Product.find(Number(id))
       if (!product) return response.status(404).json({ e: 'produit non trouvé' })
       await product.delete()
       return response.status(200).json({ message: 'workspace supprimé avec succès' })
