@@ -1,0 +1,71 @@
+name: boulangerie
+services:
+  dozzle:
+    container_name: boulangerie-front
+    image: amir20/dozzle:v7.0.7
+    restart: unless-stopped
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ./docker/dozzle/data:/data
+    ports:
+      - "49152:8080"
+    environment:
+      DOZZLE_AUTH_PROVIDER: none
+
+  postgres:
+    container_name: postgres
+    image: postgres:16.4
+    restart: always
+    environment:
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_DB: ${DB_DATABASE}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+    ports:
+      - "5433:5432"
+    volumes:
+      - boulangerie_pg_data:/var/lib/postgresql/data
+    networks:
+      - boulangerie_network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -d ${DB_DATABASE} -U ${DB_USER}"]
+      start_period: 10s
+      interval: 5s
+      timeout: 5s
+      retries: 7
+
+  backend:
+    container_name: boulangerie-backend
+    restart: always
+    build:
+      context: ./romain-back
+      dockerfile: Dockerfile
+    ports:
+      - "3333:3333"
+    env_file:
+      - .env
+    networks:
+      - boulangerie_network
+    depends_on:
+      postgres:
+        condition: service_healthy
+    command: sh /app/start.sh
+
+  frontend:
+    container_name: boulangerie-frontend
+    restart: always
+    build:
+      context: ./romain-front
+      dockerfile: Dockerfile
+    depends_on:
+      - backend
+    ports:
+      - "80:80"
+    networks:
+      - boulangerie_network
+
+volumes:
+  boulangerie_pg_data:
+
+networks:
+  boulangerie_network:
+    driver: bridge
